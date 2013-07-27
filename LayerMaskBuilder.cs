@@ -12,9 +12,12 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* Version 1.1*/
+/* Version 1.2*/
 
 /* CHANGELOG
+ * 
+ * 1.2
+ * Fixed documentation typos
  * 
  * 1.1
  * Fixed ignore functions (incorrectly used XOR operation, rather than inverse implied)
@@ -194,7 +197,7 @@ public class LayerMaskBuilder
     }
 
     /// <summary>
-    /// Sets a LayerMask to allow the same layers as another LayerMask.
+    /// Sets a LayerMask to ignore the same layers as another LayerMask.
     /// </summary>
     /// <param name="maskA">The LayerMask to be modified.</param>
     /// <param name="maskB">The LayerMask that to be copied from.</param>
@@ -203,7 +206,7 @@ public class LayerMaskBuilder
         maskA = maskA & maskB;
     }
     /// <summary>
-    /// Sets this LayerMaskBuilder's LayerMask to allow the same layers as another LayerMask.
+    /// Sets this LayerMaskBuilder's LayerMask to ignore the same layers as another LayerMask.
     /// </summary>
     /// <param name="mask">The LayerMask that to be copied from.</param>
     public void IgnoreSameLayerAs(LayerMask mask)
