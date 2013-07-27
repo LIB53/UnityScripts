@@ -12,7 +12,20 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* Version 1.0*/
+/* Version 1.1*/
+
+/* CHANGELOG
+ * 
+ * 1.1
+ * Fixed ignore functions (incorrectly used XOR operation, rather than inverse implied)
+ * Renamed NamesToLayers to NamesToNumbers
+ * Renamed LayersToNames to NumbersToNames
+ * Improved documentation
+ * Fixed documentation
+ * 
+ * 1.0
+ * First release
+ */
 
 
 using UnityEngine;
@@ -40,7 +53,7 @@ public class LayerMaskBuilder
     /// <summary>
     /// Creates a LayerMask based on either a whitelist or blacklist.
     /// </summary>
-    /// <param name="allow">If true, all LayerNumbers are allowed.</param>
+    /// <param name="allow">If true, only LayerNumbers are allowed. If false, only LayerNumbers are ignored.</param>
     /// <param name="layerNumbers">Array of numbers of layers. The value -1 represents all layers.
     /// These numbers refer to the number found in TagManager,
     /// and does not refer to the LayerMask value.</param>
@@ -51,10 +64,10 @@ public class LayerMaskBuilder
     /// <summary>
     /// Creates a LayerMask based on either a whitelist or blacklist.
     /// </summary>
-    /// <param name="allow">If true, all LayerNumbers are allowed.</param>
+    /// <param name="allow">If true, only LayerNumbers are allowed. If false, only LayerNumbers are ignored.</param>
     /// <param name="layerNames">Names of layers.</param>
     public LayerMaskBuilder(bool allow, params string[] layerNames) :
-        this(allow, NamesToLayers(layerNames)) { }
+        this(allow, NamesToNumbers(layerNames)) { }
 
     /// <summary>
     /// Sets the layer of layerNumber to be allowed on a LayerMask.
@@ -80,7 +93,7 @@ public class LayerMaskBuilder
     {
         if (layerNumber == -1) { mask = 0; return; }
         if (layerNumber >= 0 && layerNumber <= 31)
-            mask = (mask ^ (1 << layerNumber));
+            mask = ~(~layerMask | (1 << layerNumber)); ;
     }
 
     /// <summary>
@@ -90,7 +103,7 @@ public class LayerMaskBuilder
     /// <returns>Array of numbers of layers.
     /// These numbers refer to the number found in TagManager,
     /// and does not refer to the LayerMask value.</return>
-    public static int[] NamesToLayers(string[] layerNames)
+    public static int[] NamesToNumbers(string[] layerNames)
     {
         int length = layerNames.Length;
         int[] layerNumbers = new int[length];
@@ -105,7 +118,7 @@ public class LayerMaskBuilder
     /// These numbers refer to the number found in TagManager,
     /// and does not refer to the LayerMask value.</param>
     /// <returns>Array of Names of layers.</returns>
-    public static string[] LayersToNames(int[] layerNumbers)
+    public static string[] NumbersToNames(int[] layerNumbers)
     {
         int length = layerNumbers.Length;
         string[] layerNames = new string[length];
@@ -135,7 +148,7 @@ public class LayerMaskBuilder
     /// <param name="layerNames">Array of names of layers.</param>
     public void Allow(params string[] layerNames)
     {
-        Allow(NamesToLayers(layerNames));
+        Allow(NamesToNumbers(layerNames));
     }
 
     /// <summary>
@@ -150,7 +163,7 @@ public class LayerMaskBuilder
         {
             if (layerNumber == -1) { layerMask = 0; return; }
             if (layerNumber >= 0 && layerNumber <= 31)
-                layerMask = (layerMask ^ (1 << layerNumber));
+                layerMask = ~(~layerMask | (1 << layerNumber));
         }
     }
     /// <summary>
@@ -159,7 +172,7 @@ public class LayerMaskBuilder
     /// <param name="layerNames">Array of names of layers.</param>
     public void Ignore(params string[] layerNames)
     {
-        Ignore(NamesToLayers(layerNames));
+        Ignore(NamesToNumbers(layerNames));
     }
 
     /// <summary>
@@ -221,7 +234,7 @@ public class LayerMaskBuilder
     /// <param name="layerNames">Array of names of layers.</param>
     public static LayerMask LayerMaskFromAllowed(params string[] layerNames)
     {
-        return LayerMaskFromAllowed(NamesToLayers(layerNames));
+        return LayerMaskFromAllowed(NamesToNumbers(layerNames));
     }
     /// <summary>
     /// Create a LayerMask that ignores only the layers represented by an array of layer numbers.
@@ -236,7 +249,7 @@ public class LayerMaskBuilder
         {
             if (layerNumber == -1) { layerMask = 0; return layerMask; }
             if (layerNumber >= 0 && layerNumber <= 31)
-                layerMask = (layerMask ^ (1 << layerNumber));
+                layerMask = ~(~layerMask | (1 << layerNumber));
         }
         return layerMask;
     }
@@ -246,11 +259,11 @@ public class LayerMaskBuilder
     /// <param name="layerNames">Array of names of layers.</param>
     public static LayerMask LayerMaskFromIgnored(params string[] layerNames)
     {
-        return LayerMaskFromIgnored(NamesToLayers(layerNames));
+        return LayerMaskFromIgnored(NamesToNumbers(layerNames));
     }
 
     /// <summary>
-    /// Converts the LayerMask to a binary number formatted as a string.
+    /// Converts this LayerMaskBuilder's LayerMask to a binary number formatted as a string.
     /// </summary>
     /// <returns></returns>
     public string BinaryFormat()
@@ -258,7 +271,7 @@ public class LayerMaskBuilder
         return System.Convert.ToString(layerMask.value, 2);
     }
     /// <summary>
-    /// Converts this LayerMaskBuilder's LayerMask to a binary number formatted as a string.
+    /// Converts the LayerMask to a binary number formatted as a string.
     /// </summary>
     /// <returns></returns>
     public static string BinaryFormat(LayerMask mask)
