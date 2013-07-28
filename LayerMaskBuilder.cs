@@ -12,9 +12,16 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* Version 1.2*/
+/* Version 1.3*/
 
 /* CHANGELOG
+ * 
+ * 1.3
+ * Fixed typo line 99
+ * Added implicit operators
+ * Made more functions use params
+ * Code cleanup
+ * Fully tested
  * 
  * 1.2
  * Fixed documentation typos
@@ -75,28 +82,34 @@ public class LayerMaskBuilder
     /// <summary>
     /// Sets the layer of layerNumber to be allowed on a LayerMask.
     /// </summary>
-    /// <param name="layerNumber">The number of the layer to be allowed. The value -1 represents all layers.
+    /// <param name="mask">The LayerMask to be modified.</param>
+    /// <param name="layerNumbers">The number of the layer to be allowed. The value -1 represents all layers.
     /// This refers to the number found in TagManager,
     /// and does not refer to the LayerMask value.</param>
-    /// <param name="mask">The LayerMask to be modified.</param>
-    public static void AllowLayerOn(int layerNumber, ref LayerMask mask)
+    public static void AllowLayerOn(ref LayerMask mask, params int[] layerNumbers)
     {
-        if (layerNumber == -1) { mask = -1; return; }
-        if (layerNumber >= 0 && layerNumber <= 31)
-            mask = (mask | (1 << layerNumber));
+        foreach (int num in layerNumbers)
+        {
+            if (num == -1) { mask = -1; return; }
+            if (num >= 0 && num <= 31)
+                mask = (mask | (1 << num));
+        }
     }
     /// <summary>
     /// Sets the layer of layerNumber to be allowed on a LayerMask.
     /// </summary>
+    /// <param name="mask">The LayerMask to be modified.</param>
     /// <param name="layerNumber">The number of the layer to be ignored. The value -1 represents all layers.
     /// This refers to the number found in TagManager,
     /// and does not refer to the LayerMask value.</param>
-    /// <param name="mask">The LayerMask to be modified.</param>
-    public static void IgnoreLayerOn(int layerNumber, ref LayerMask mask)
+    public static void IgnoreLayerOn(ref LayerMask mask, params int[] layerNumbers)
     {
-        if (layerNumber == -1) { mask = 0; return; }
-        if (layerNumber >= 0 && layerNumber <= 31)
-            mask = ~(~layerMask | (1 << layerNumber)); ;
+        foreach (int num in layerNumbers)
+        {
+            if (num == -1) { mask = 0; return; }
+            if (num >= 0 && num <= 31)
+                mask = ~(~mask | (1 << num));
+        }
     }
 
     /// <summary>
@@ -106,7 +119,7 @@ public class LayerMaskBuilder
     /// <returns>Array of numbers of layers.
     /// These numbers refer to the number found in TagManager,
     /// and does not refer to the LayerMask value.</return>
-    public static int[] NamesToNumbers(string[] layerNames)
+    public static int[] NamesToNumbers(params string[] layerNames)
     {
         int length = layerNames.Length;
         int[] layerNumbers = new int[length];
@@ -121,7 +134,7 @@ public class LayerMaskBuilder
     /// These numbers refer to the number found in TagManager,
     /// and does not refer to the LayerMask value.</param>
     /// <returns>Array of Names of layers.</returns>
-    public static string[] NumbersToNames(int[] layerNumbers)
+    public static string[] NumbersToNames(params int[] layerNumbers)
     {
         int length = layerNumbers.Length;
         string[] layerNames = new string[length];
@@ -142,7 +155,7 @@ public class LayerMaskBuilder
         {
             if (layerNumber == -1) { layerMask = -1; return; }
             if (layerNumber >= 0 && layerNumber <= 31)
-                layerMask = (layerMask | (1 << layerNumber));
+                layerMask |= (1 << layerNumber);
         }
     }
     /// <summary>
@@ -185,7 +198,7 @@ public class LayerMaskBuilder
     /// <param name="maskB">The LayerMask that to be copied from.</param>
     public static void AllowSameLayersAs(ref LayerMask maskA, LayerMask maskB)
     {
-        maskA = maskA | maskB;
+        maskA |= maskB;
     }
     /// <summary>
     /// Sets this LayerMaskBuilder's LayerMask to allow the same layers as another LayerMask.
@@ -193,7 +206,7 @@ public class LayerMaskBuilder
     /// <param name="mask">The LayerMask that to be copied from.</param>
     public void AllowSameLayersAs(LayerMask mask)
     {
-        this.layerMask = this.layerMask | mask;
+        this.layerMask |= mask;
     }
 
     /// <summary>
@@ -203,7 +216,7 @@ public class LayerMaskBuilder
     /// <param name="maskB">The LayerMask that to be copied from.</param>
     public static void IgnoreSameLayersAs(ref LayerMask maskA, LayerMask maskB)
     {
-        maskA = maskA & maskB;
+        maskA &= maskB;
     }
     /// <summary>
     /// Sets this LayerMaskBuilder's LayerMask to ignore the same layers as another LayerMask.
@@ -211,7 +224,7 @@ public class LayerMaskBuilder
     /// <param name="mask">The LayerMask that to be copied from.</param>
     public void IgnoreSameLayerAs(LayerMask mask)
     {
-        this.layerMask = this.layerMask & mask;
+        this.layerMask &= mask;
     }
 
     /// <summary>
@@ -227,7 +240,7 @@ public class LayerMaskBuilder
         {
             if (layerNumber == -1) { layerMask = -1; return layerMask; }
             if (layerNumber >= 0 && layerNumber <= 31)
-                layerMask = (layerMask | (1 << layerNumber));
+                layerMask |= 1 << layerNumber;
         }
         return layerMask;
     }
@@ -285,5 +298,17 @@ public class LayerMaskBuilder
     public static implicit operator LayerMask(LayerMaskBuilder maskBuilder)
     {
         return maskBuilder.layerMask;
+    }
+    public static implicit operator int(LayerMaskBuilder maskBuilder)
+    {
+        return maskBuilder.layerMask;
+    }
+    public static implicit operator LayerMaskBuilder(LayerMask mask)
+    {
+        return new LayerMaskBuilder(mask);
+    }
+    public static implicit operator LayerMaskBuilder(int mask)
+    {
+        return new LayerMaskBuilder(mask);
     }
 }
